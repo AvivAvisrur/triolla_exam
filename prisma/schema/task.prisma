@@ -1,0 +1,9 @@
+//configure  the model here.
+model Task {
+    id          String   @id @default(uuid())
+    title       String
+    description String
+    priority    Float
+    created_at  DateTime @default(now())
+    updated_at  DateTime @updatedAt
+}
