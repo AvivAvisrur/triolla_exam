@@ -3,10 +3,21 @@ import "dotenv/config";
 import prisma from "../prisma/prismaClient";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import combineRoutes from "./routes/combineRoutes.route";
+import morgan from "morgan";
+import fs from "fs";
+import path from "path";
+
 const app = express();
+export const TasksLogger = fs.createWriteStream(
+  path.join(__dirname, "tasks.log"),
+  {
+    flags: "a",
+  }
+);
 
 //global middlewares
 app.use(express.json());
+app.use(morgan("short", { stream: TasksLogger }));
 
 //routes
 

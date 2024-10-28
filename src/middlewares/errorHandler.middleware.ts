@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { TasksLogger } from "../app";
 
 type ErrorHandlerType = {
   message?: string;
@@ -24,10 +25,10 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   if (err instanceof ServerError) {
-    console.error("Server Error: ", err);
+    TasksLogger.write(`Server Error: ${err} `);
     res.status(err.code).send({ message: err.message, details: err.details });
   } else {
-    console.error("Unknown error : ", err);
+    TasksLogger.write(`Unknown error : ${err} `);
     res.status(500).send({ message: "Unknown error occured" });
   }
 };
