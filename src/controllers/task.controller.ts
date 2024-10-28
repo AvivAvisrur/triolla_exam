@@ -26,8 +26,18 @@ export const createTask = async (req: Request, res: Response) => {
 export const getTasks = async (req: Request, res: Response) => {
   const page = parseInt(req.query.page as string) || 1;
   const limit = parseInt(req.query.limit as string) || 10;
-
-  return await getAllTasks(page, limit);
+  const priorityFilter = req.query.priorityFilter as string;
+  const titleFilter = req.query.titleFilter as string;
+  const descriptionFilter = req.query.descriptionFilter as string;
+  const sortByFilter = req.query.sortBy as "priority" | "created_at";
+  const sortOrderFilter = req.query.order as "asc" | "desc";
+  return await getAllTasks(page, limit, {
+    priority: priorityFilter,
+    title: titleFilter,
+    description: descriptionFilter,
+    sortBy: sortByFilter,
+    order: sortOrderFilter,
+  });
 };
 
 export const findTaskById = async (req: Request, res: Response) => {
