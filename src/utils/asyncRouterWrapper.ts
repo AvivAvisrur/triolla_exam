@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import HttpStatusCode from "./httpsStatuscodes";
+import HttpStatusCode from "./httpsStatusCodes";
+import { TasksLogger } from "../app";
 
 export type ResponseDataType = object | string | number | undefined;
 export type ResponseType = {
