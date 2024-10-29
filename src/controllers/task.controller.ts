@@ -1,11 +1,17 @@
 import { NextFunction, Request, Response } from "express";
-import { addTask, getAllTasks, getTaskById } from "../services/task.service";
+import {
+  addTask,
+  getAllTasks,
+  getTaskById,
+  Task,
+  updateTask,
+} from "../services/task.service";
 import { priorityCalculate } from "../utils/helperFunctions";
 
 export type ReceivedTask = {
   title: string;
   description: string;
-  date?: Date;
+  created_at?: Date;
 };
 
 export const createTask = async (req: Request, res: Response) => {
@@ -42,4 +48,28 @@ export const getTasks = async (req: Request, res: Response) => {
 
 export const findTaskById = async (req: Request, res: Response) => {
   return await getTaskById(req.params.id);
+};
+
+export const updateTaskById = async (req: Request, res: Response) => {
+  const id = req.params.id;
+  const { title, description }: ReceivedTask & { created_at?: Date } = req.body;
+
+  let taskToUpdate = null;
+
+  if (description) {
+    taskToUpdate = priorityCalculate({
+      id,
+      description,
+      title,
+      priority: 0,
+      //passing this new date just to demonstrate the created_at field for the priority calculation
+    });
+  } else {
+    taskToUpdate = {
+      id,
+      title,
+    };
+  }
+
+  return await updateTask(taskToUpdate);
 };

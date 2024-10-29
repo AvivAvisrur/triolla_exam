@@ -5,7 +5,6 @@ import prisma from "../../prisma/prismaClient";
 import { TasksLogger } from "../app";
 
 export type Task = ReceivedTask & {
-  id?: string;
   priority: number;
   created_at?: Date;
 };
@@ -24,6 +23,11 @@ type PriorityRange = {
   max: number;
 };
 
+export type UpdateTask = {
+  title?: string;
+  description?: string;
+  priority?: number;
+};
 const PriorityRanges: { [key: string]: PriorityRange } = {
   HIGH: { min: 0.7, max: 1 }, // Example: 0.7 - 1 is considered HIGH
   MID: { min: 0.4, max: 0.69 }, // 0.4 - 0.69 is MID
@@ -31,7 +35,7 @@ const PriorityRanges: { [key: string]: PriorityRange } = {
 };
 const cache = new NodeCache({ stdTTL: 5 }); // Cache expires after 60 seconds
 
-export const addTask = async (task: Task): Promise<Task> => {
+export const addTask = async (task: Task): Promise<Task & { id?: string }> => {
   //omitting the created at field because server will generate new one.
   const { created_at, ...restTask } = task;
 
@@ -47,10 +51,15 @@ export const getAllTasks = async (
   page: number,
   limit: number,
   filters: FilterType
-): Promise<Task[]> => {
+): Promise<{
+  tasks: Task[];
+  page: number;
+  totalCount: number;
+  totalPages: number;
+}> => {
   //unique name for each pagination page.
   const cacheKey = `allTasks-page-${page}-size-${limit}`;
-  const skip = (page - 1) * limit;
+  const skip = (page-1) * limit;
 
   let priorityRange = undefined;
 
@@ -65,12 +74,42 @@ export const getAllTasks = async (
   const sortOrder = filters.order || "asc";
 
   // Check if data is already in the cache
-  const cachedTasks = cache.get<Task[]>(cacheKey);
-  if (cachedTasks) {
+  const cachedData = cache.get<{
+    tasks: Task[];
+    totalCount: number;
+    page: number;
+    totalPages: number;
+  }>(cacheKey);
+
+  if (cachedData) {
     TasksLogger.write("Returning tasks from cache");
-    return cachedTasks;
+    return {
+      tasks: cachedData.tasks,
+      page,
+      totalCount: cachedData.totalCount,
+      totalPages: cachedData.totalPages,
+    };
   }
 
+  const totalCount = await prisma.task.count({
+    where: {
+      priority: priorityRange
+        ? {
+            gte: priorityRange.min,
+            lte: priorityRange.max,
+          }
+        : undefined,
+      title: filters.title
+        ? { contains: filters.title, mode: "insensitive" }
+        : undefined,
+      description: filters.description
+        ? { contains: filters.description, mode: "insensitive" }
+        : undefined,
+    },
+  });
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalCount / limit);
   // If not in cache, fetch from the database
   const tasks = await prisma.task.findMany({
     skip,
@@ -95,8 +134,31 @@ export const getAllTasks = async (
   });
 
   // Store the result in cache
-  cache.set(cacheKey, tasks);
+  cache.set(cacheKey, { tasks, totalCount, totalPages });
   TasksLogger.write("fetched tasks");
 
-  return tasks;
+  return {
+    tasks,
+    page,
+    totalCount,
+    totalPages,
+  };
+};
+
+export const updateTask = async ({
+  id,
+  title,
+  description,
+  priority,
+}: UpdateTask & { id?: string }): Promise<UpdateTask | null> => {
+  return await prisma.task.update({
+    where: {
+      id,
+    },
+    data: {
+      title,
+      description,
+      priority,
+    },
+  });
 };

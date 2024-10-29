@@ -5,13 +5,14 @@ export const priorityCalculate = ({
   description,
   title,
   priority,
-  created_at,
-}: Task): Task => {
-
+  id,
+}: Task & { id?: string }): Task & { id?: string } => {
   const isWithinLast24Hours = isAfter(
     new Date(),
     sub(new Date(), { hours: 24 })
   );
+
+  console.log(id);
 
   const descriptionLength = description.length;
   const titleLength = title.length;
@@ -38,5 +39,5 @@ export const priorityCalculate = ({
     0.3;
   priority = descriptionRatio + titleRatio + dateRatio + keyWordsRatio;
 
-  return { description, title, created_at, priority };
+  return { id, description, title, priority };
 };
