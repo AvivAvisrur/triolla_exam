@@ -32,7 +32,7 @@ export const asyncRouteWrapper = (cb: cbType) => {
       const status =
         (results as ResponseType)?.status || DEFAULT_RESPONSE_STATUS;
 
-      res.status(status).send({ data });
+      res.status(status).send(data);
     } catch (error) {
       next(error);
     }
