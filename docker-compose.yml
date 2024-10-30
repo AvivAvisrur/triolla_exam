@@ -18,7 +18,7 @@ services:
     ports:
       - "8888:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: aviv4588@gmail.com 
+      PGADMIN_DEFAULT_EMAIL: triolla@io.com 
       PGADMIN_DEFAULT_PASSWORD: 1234
     volumes:
       - pgadmin-data:/var/lib/pgadmin
