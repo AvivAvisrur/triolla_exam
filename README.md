@@ -18,12 +18,6 @@
 
 **Project Name** is a full-stack application with a React-based frontend and a Node.js backend. The backend uses Docker for containerization, along with PostgreSQL as the database and pgAdmin for database management.
 
-## Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
 ## Technologies
 
 - **Backend**: Node.js, Docker
@@ -56,7 +50,7 @@ npm install
 
 ```
 SERVER_PORT = 3001
-DATABASE_URL=postgresql://root:1234@localhost:5432/postgres?schema=prisma_test
+DATABASE_URL=postgresql://root:1234@localhost:5432/postgres?schema=triolla
 ```
 
 4.**Configure Docker**
@@ -89,7 +83,7 @@ Name: what ever name you like
 go to connection tab:
 
 ```
-HOST_NAME:localhost
+HOST_NAME:host.docker.internal
 PORT = 5432
 DATA_BASE = postgres
 username = root
