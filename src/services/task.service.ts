@@ -58,8 +58,12 @@ export const getAllTasks = async (
   totalPages: number;
 }> => {
   //unique name for each pagination page.
-  const cacheKey = `allTasks-page-${page}-size-${limit}`;
-  const skip = (page-1) * limit;
+  const filterKey = JSON.stringify({
+    priority: filters.priority || "",
+    title: filters.title || "",
+  });
+  const cacheKey = `allTasks-page-${page}-size-${limit}-filters-${filterKey}`;
+  const skip = (page - 1) * limit;
 
   let priorityRange = undefined;
 
